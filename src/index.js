@@ -17,11 +17,23 @@ app.use(express.static(publicDirectoryPath))
 io.on('connection', (socket) => {
     console.log('New WebSocket connection')
 
-    socket.emit('message', generateMessage('Welcome'))
-    socket.broadcast.emit('message', generateMessage('A new user has joined!'))
+    
 
     // //server (emit) -> to new client (recieve) - countUpdated
     // socket.emit('countUpdated', count)
+
+    socket.on('join', ({ username, room }) => {
+        socket.join(room)
+
+        //socket.emit -> sends message to specific client
+        //io.emit -> sends message to every client
+        //socket.broadcast.emit -> sends message to every client except the client emiiting the event
+        socket.emit('message', generateMessage('Welcome'))
+        
+        //io.to.emit -> emits an event to everybody in a specific room
+        //socket.broadcast.to.emit -> sends message to every client except the client emiiting the event and limits it to a chat room
+        socket.broadcast.to(room).emit('message', generateMessage(`${username} has joined!`))
+    })
 
     socket.on('sendMessage', (msg, callback) => {
         const filter = new Filter()
@@ -30,7 +42,7 @@ io.on('connection', (socket) => {
             return callback('Profanity is not allowed!')
         }
 
-        io.emit('message', generateMessage(msg))
+        io.to('Center City').emit('message', generateMessage(msg))
         callback()
         // console.log(msg)
     })
@@ -41,6 +53,8 @@ io.on('connection', (socket) => {
         callback()
 
     })
+
+    
 
     
 

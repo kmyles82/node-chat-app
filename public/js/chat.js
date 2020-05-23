@@ -15,8 +15,11 @@ const locationMessageTemplate = document.querySelector('#location-message-templa
 //server (emit) -> client (receive) --acknowledgement--> server
 //client (emit) -> server (receive) --acknowledgement--> client
 
+//Options
+const { username, room} = Qs.parse(location.search, { ignoreQueryPrefix: true })
+
 socket.on('message', (msg) => {
-    console.log(msg)
+    // console.log(msg)
     const html = Mustache.render(messageTemplate, {
         msg: msg.text,
         createAt: moment(msg.createAt).format('h:mm a')
@@ -26,8 +29,9 @@ socket.on('message', (msg) => {
 
 socket.on('locationMessage', (url) => {
     console.log(url)
+    // console.log(url.createAt)
     const html = Mustache.render(locationMessageTemplate, {
-        url,
+        url: url.text,
         createAt: moment(url.createAt).format('h:mm a')
     })
     $messages.insertAdjacentHTML("beforeend", html)
@@ -68,8 +72,8 @@ $sendLocationButton.addEventListener('click', (e) => {
     $sendLocationButton.setAttribute('disabled', 'disabled')
 
     navigator.geolocation.getCurrentPosition((position) => {
-        console.log(position.coords.latitude)
-        console.log(position.coords.longitude)
+        // console.log(position.coords.latitude)
+        // console.log(position.coords.longitude)
 
         socket.emit('sendLocation', {
             latitude: position.coords.latitude,
@@ -86,4 +90,6 @@ $sendLocationButton.addEventListener('click', (e) => {
 
     
 })
+
+socket.emit('join', { username, room})
 

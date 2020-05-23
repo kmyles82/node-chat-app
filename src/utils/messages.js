@@ -7,7 +7,7 @@ const generateMessage = (text) => {
 
 const generateLocationMessage = (url) => {
     return {
-        url,
+        text: url,
         createAt: new Date().getTime()
      }
  }
